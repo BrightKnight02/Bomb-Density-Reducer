@@ -1,6 +1,7 @@
 import numpy
 import json
 import os
+import sys
 
 rankableSpacing = 20 #ms
 maxSpace = .25 #beats. Maximum space between bombs in a tunnel. if you are less dense than this what the crap.
@@ -110,8 +111,11 @@ def getFiles():
     infoFile = None
     if os.path.exists("Info.dat"):
         infoFile = open("Info.dat", "r")
-    else:
+    elif os.path.exists("info.dat"):
         infoFile = open("info.dat", "r")
+    else:
+        input("Error: no Info.dat file detected")
+        sys.exit()
         
     info = json.load(infoFile)
     bpm = info["_beatsPerMinute"]
@@ -120,6 +124,7 @@ def getFiles():
         fileNames.append(i["_beatmapFilename"])
     infoFile.close()
     return fileNames, bpm
-    
+
 if __name__ == "__main__":
     main()
+    input("Press Enter to close")
