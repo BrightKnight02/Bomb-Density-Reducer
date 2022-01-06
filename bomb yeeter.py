@@ -1,26 +1,51 @@
 import numpy
 import json
+import os
 
 rankableSpacing = 20 #ms
 maxSpace = .25 #beats. Maximum space between bombs in a tunnel. if you are less dense than this what the crap.
 
 def main():
     files, bpm = getFiles()
+    valid = False
     minSpace = rankableSpacing / 60000 * bpm #beats
+    space = minSpace
+    while not valid:
+        precisionStr  = input("Enter target precision for bombs (0 for max bombs): 1/")
+        try:
+            precision = int(precisionStr)
+            if precision == 0:
+                valid = True
+            elif precision < 2:
+                go = input("This low of precision may cause problems. Proceed? (y/n)").strip().lower()
+                if go == "y":
+                    valid = True
+                    space = getSpace(minSpace, precision)
+                else:
+                    print("repeating \n")
+            else:
+                valid = True
+                space = getSpace(minSpace, precision) 
+        except:
+            print("Error with precision entered")
+        
     for i in files:
+        print(f"In {i}")
         diffFile = open(i, "r")
         diff = json.load(diffFile)
         diffFile.close()
         snakes = findSnakes(diff)
         yeetBombs(diff)
-        placeBombs(diff, snakes, minSpace)
-        diffFile = open(i, "w")
+        placeBombs(diff, snakes, space)
+        diffFile = open("New" + i, "w")
         json.dump(diff, diffFile)
         diffFile.close()
-    
-"""
-Currently there are bugs with bombs
-"""
+        
+def getSpace(minSpace, precision):
+    if minSpace > 1 / precision:
+        while 1 / precision < minSpace:
+            precision += precision
+    return 1 / precision
 
 def findSnakes(diff):
     snakes = []
@@ -34,49 +59,60 @@ def findSnakes(diff):
             b = i["_lineIndex"]
             if snakes[a][b][0] == -1:
                 snakes[a][b][0] = i["_time"]
-            if len(snakes[a][b]) % 2 > 0:
                 snakes[a][b].append(i["_time"])
-            elif i["_time"] < snakes[a][b][-1] + maxSpace:
+            elif i["_time"] <= snakes[a][b][-1] + maxSpace:
                 snakes[a][b][-1] = i["_time"]
             else:
+                snakes[a][b].append(i["_time"])
                 snakes[a][b].append(i["_time"])
     return snakes
     
 def yeetBombs(diff):
     toYeet = []
+    yeeted = 0
     for i in diff["_notes"]:
         if i["_type"] == 3:
             toYeet.append(i)
     for i in toYeet:
         diff["_notes"].remove(i)
+        yeeted += 1
+    print(f"{yeeted} bombs removed")
         
 def placeBombs(diff, snakes, minSpace):
+    yeeted = 0
     for i in range(3):
         for j in range(4):
             if snakes[i][j][0] != -1:
-                for k in range(int(len(snakes[i][j]) / 2)):
+                for k in range(0, len(snakes[i][j]), 2):
                     if snakes[i][j][k] == snakes[i][j][k + 1]:
                         diff["_notes"].append({
-  "_time" : snakes[i][j][k],
+  "_time" : round(snakes[i][j][k], 3),
   "_lineIndex" : j,
   "_lineLayer" : i,
   "_type" : 3,
   "_cutDirection" : 1
 })
+                        yeeted += 1
                     else:
                         for l in numpy.arange(snakes[i][j][k], snakes[i][j][k + 1], minSpace):
                             diff["_notes"].append({
-  "_time" : l,
+  "_time" : round(l, 3),
   "_lineIndex" : j,
   "_lineLayer" : i,
   "_type" : 3,
   "_cutDirection" : 1
 })
-    sorted(diff["_notes"], key = lambda i : i["_time"])
-    print(diff["_notes"])
+                            yeeted += 1
+    sorted(diff["_notes"], key = lambda q : q["_time"])
+    print(f"{yeeted} bombs placed")
    
 def getFiles():
-    infoFile = open("info.dat", "r")
+    infoFile = None
+    if os.path.exists("Info.dat"):
+        infoFile = open("Info.dat", "r")
+    else:
+        infoFile = open("info.dat", "r")
+        
     info = json.load(infoFile)
     bpm = info["_beatsPerMinute"]
     fileNames = []
