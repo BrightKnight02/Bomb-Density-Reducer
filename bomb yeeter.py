@@ -3,14 +3,12 @@ import json
 import os
 import sys
 
-rankableSpacing = 20 #ms
+
 maxSpace = .25 #beats. Maximum space between bombs in a tunnel. if you are less dense than this what the crap.
 
 def main():
-    files, bpm = getFiles()
+    files, bpm, njss = getFiles()
     valid = False
-    minSpace = rankableSpacing / 60000 * bpm #beats
-    space = minSpace
     while not valid:
         precisionStr  = input("Enter target precision for bombs (0 for max bombs): 1/")
         try:
@@ -21,31 +19,34 @@ def main():
                 go = input("This low of precision may cause problems. Proceed? (y/n)").strip().lower()
                 if go == "y":
                     valid = True
-                    space = getSpace(minSpace, precision)
+                    
                 else:
                     print("repeating \n")
             else:
-                valid = True
-                space = getSpace(minSpace, precision) 
+                valid = True 
         except:
             print("Error with precision entered")
         
-    for i in files:
-        print(f"In {i}")
-        diffFile = open(i, "r")
+    for i in range(len(files)):
+        space = getSpace(njss[i], precision, bpm)
+        print(f"In {files[i]}")
+        diffFile = open(files[i], "r")
         diff = json.load(diffFile)
         diffFile.close()
         snakes = findSnakes(diff)
         yeetBombs(diff)
         placeBombs(diff, snakes, space)
-        diffFile = open("New" + i, "w")
+        diffFile = open("New" + files[i], "w")
         json.dump(diff, diffFile)
         diffFile.close()
         
-def getSpace(minSpace, precision):
-    if minSpace > 1 / precision:
+def getSpace(njs, precision, bpm):
+    minSpace = max(bpm / njs / 120, .02 * bpm / 60)
+    if precision == 0:
+        return minSpace
+    elif minSpace > 1 / precision:
         while 1 / precision < minSpace:
-            precision += precision
+            precision /= 2
     return 1 / precision
 
 def findSnakes(diff):
@@ -120,10 +121,12 @@ def getFiles():
     info = json.load(infoFile)
     bpm = info["_beatsPerMinute"]
     fileNames = []
+    njss = []
     for i in info["_difficultyBeatmapSets"][0]["_difficultyBeatmaps"]:
         fileNames.append(i["_beatmapFilename"])
+        njss.append(i["_noteJumpMovementSpeed"])
     infoFile.close()
-    return fileNames, bpm
+    return fileNames, bpm, njss
 
 if __name__ == "__main__":
     main()

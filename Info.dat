@@ -1,0 +1,46 @@
+{
+  "_version" : "2.0.0",
+  "_songName" : "Click Track Testing",
+  "_songSubName" : "",
+  "_songAuthorName" : "Clickity Clackity",
+  "_levelAuthorName" : "BrightKnight",
+  "_beatsPerMinute" : 120,
+  "_shuffle" : 0,
+  "_shufflePeriod" : 0.5,
+  "_previewStartTime" : 12,
+  "_previewDuration" : 10,
+  "_songFilename" : "120bpm Track.ogg",
+  "_coverImageFilename" : "cover.png",
+  "_environmentName" : "DefaultEnvironment",
+  "_songTimeOffset" : 0,
+  "_customData" : {
+    "_editors" : {
+      "_lastEditedBy" : "ChroMapper",
+      "ChroMapper" : {
+        "version" : "0.8.458"
+      },
+      "MMA2" : {
+        "version" : "4.5.1"
+      }
+    }
+  },
+  "_difficultyBeatmapSets" : [
+    {
+      "_beatmapCharacteristicName" : "Standard",
+      "_difficultyBeatmaps" : [
+        {
+          "_difficulty" : "Hard",
+          "_difficultyRank" : 5,
+          "_beatmapFilename" : "HardStandard.dat",
+          "_noteJumpMovementSpeed" : 25,
+          "_noteJumpStartBeatOffset" : 0,
+          "_customData" : {
+            "_editorOffset" : 0,
+            "_editorOldOffset" : 0
+          }
+        }
+      ]
+    }
+  ],
+  "_allDirectionsEnvironmentName" : "GlassDesertEnvironment"
+}
