@@ -3,9 +3,6 @@ import json
 import os
 import sys
 
-
-maxSpace = .25 #beats. Maximum space between bombs in a tunnel. if you are less dense than this what the crap.
-
 def main():
     files, bpm, njss = getFiles()
     valid = False
@@ -33,7 +30,7 @@ def main():
         diffFile = open(files[i], "r")
         diff = json.load(diffFile)
         diffFile.close()
-        snakes = findSnakes(diff)
+        snakes = findSnakes(diff, space)
         yeetBombs(diff)
         placeBombs(diff, snakes, space)
         diffFile = open("New" + files[i], "w")
@@ -49,7 +46,7 @@ def getSpace(njs, precision, bpm):
             precision /= 2
     return 1 / precision
 
-def findSnakes(diff):
+def findSnakes(diff, minSpace):
     snakes = []
     for i in range(3):
         snakes.append([])
@@ -62,7 +59,7 @@ def findSnakes(diff):
             if snakes[a][b][0] == -1:
                 snakes[a][b][0] = i["_time"]
                 snakes[a][b].append(i["_time"])
-            elif i["_time"] <= snakes[a][b][-1] + maxSpace:
+            elif i["_time"] <= snakes[a][b][-1] + 1.5 * minSpace:
                 snakes[a][b][-1] = i["_time"]
             else:
                 snakes[a][b].append(i["_time"])
